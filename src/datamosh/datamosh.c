@@ -4,25 +4,26 @@
 #include <string.h>
 #include <time.h>
 
-int main(int argc, char** argv) {
+int main(int argc, const char** argv) {
 	char* fileToOpen = NULL;
 	int count = 3;
 	srand(time(NULL));
+	FILE* file;
 
-	if (argc < 2) {
-		fprintf(stderr, "Error: Not enough arguments given\n");
-		return 1;
-	} else if (argc > 3) {
-		fprintf(stderr, "Error: Too many arguments given!\n");
-		return 1;
+	fileToOpen = get_option("-f", "--file", argc, argv, true);
+
+	if (get_option("-c", "--count", argc, argv, false) != NULL)
+		count = atoi(get_option("-c", "--count", argc, argv, false));
+
+	file = fopen(fileToOpen, "rb+");
+
+	struct image img;
+	if (DetermineFileFormat(fileToOpen) == JPG)
+		img = Jpeg_DetermineRealImageCoords(file);
+	else if (DetermineFileFormat(fileToOpen) == UNSUPPORTED) {
+		fprintf(stderr, "Unsupported file format!\n");
+		exit(EXIT_FAILURE);
 	}
-
-	fileToOpen = argv[1];
-	count = atoi(argv[2]);
-
-	FILE* file = fopen(fileToOpen, "rb+");
-
-	struct image img = Jpeg_DetermineRealImageCoords(file);
 
 	for (int i = 0; i < count; i++) {
 		fseek(file, rand_range(img.start, img.end), SEEK_SET);
