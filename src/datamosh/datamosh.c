@@ -17,7 +17,13 @@ int main(int argc, const char** argv) {
 
 	file = fopen(fileToOpen, "rb+");
 
-	struct image img = Jpeg_DetermineRealImageCoords(file);
+	struct image img;
+	if (DetermineFileFormat(fileToOpen) == JPG)
+		img = Jpeg_DetermineRealImageCoords(file);
+	else if (DetermineFileFormat(fileToOpen) == UNSUPPORTED) {
+		fprintf(stderr, "Unsupported file format!\n");
+		exit(EXIT_FAILURE);
+	}
 
 	for (int i = 0; i < count; i++) {
 		fseek(file, rand_range(img.start, img.end), SEEK_SET);
